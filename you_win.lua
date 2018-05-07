@@ -30,6 +30,9 @@ local scene = composer.newScene( sceneName ) -- This function doesn't accept a s
 -- DISPLAY OBJECTS
 -----------------------------------------------------------------------------------------
 local bkg_image
+local winSound = audio.loadSound("Sounds/yabbadabbalaugh.wav") 
+local winSoundChannel
+
 
 -- The function called when the screen doesn't exist
 function scene:create( event )
@@ -67,6 +70,7 @@ function scene:show( event )
 
     if ( phase == "will" ) then
         -- Called when the scene is still off screen (but is about to come on screen).
+        winSoundChannel = audio.play(winSound)
 
     -----------------------------------------------------------------------------------------
 
