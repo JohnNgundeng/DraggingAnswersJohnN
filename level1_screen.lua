@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------------------
 --
 -- game_level1.lua
--- Created by: Daniel
+-- Created by: John Ngundeng
 -- Date: Nov. 22nd, 2014
 -- Description: This is the level 1 screen of the game.
 -----------------------------------------------------------------------------------------
@@ -72,13 +72,13 @@ local userAnswerBoxPlaceholder
 
 local lives = 2
 local questionsAnswered = 0
-
 -- sound effects
+local sound1 = audio.loadSound("Sounds/yeah.mp3")
+local sound2 = audio.loadSound("Sounds/boo.mp3")
 local correctSound
-local booSound
+local incorrectSound
 local bkgSound = audio.loadSound("Sounds/YBN.mp3") 
 local bkgSoundChannel
-
 -----------------------------------------------------------------------------------------
 -- LOCAL FUNCTIONS
 -----------------------------------------------------------------------------------------
@@ -227,8 +227,12 @@ end
 
 -- Transitioning Function to YouWin screen
 local function YouWinTransitionLevel1( )
-    composer.gotoScene("you_win", {effect = "fade", time = 500})
+    composer.gotoScene("you_win", { time = 500})
 end
+-- Function that transitions to Lose Screen
+local function YouLoseTransition( )        
+    composer.gotoScene( "you_lose", { time = 1000})
+end 
 
 -- Function to Restart Level 1
 local function RestartLevel1()
@@ -238,9 +242,32 @@ local function RestartLevel1()
 end
 
 -- Function to Check User Input
-local function CheckUserAnswerInput()
-          
-    timer.performWithDelay(500, RestartLevel1) 
+local function UserAnswerInputCorrect()
+
+    -- increase number of 
+    questionsAnswered = questionsAnswered + 1
+
+    if (questionsAnswered == 3) then
+
+    timer.performWithDelay(200, YouWinTransitionLevel1)
+    end
+
+    timer.performWithDelay(1000, RestartLevel1) 
+end
+
+-- Function to Check User Input
+local function UserAnswerInputIncorrect()
+    
+    -- decrease number of lives
+    lives = lives - 1
+
+    incorrectSound = audio.play(Sound2)
+
+    if (lives == 0) then
+
+    timer.performWithDelay(200, YouLoseTransition)
+    end
+    timer.performWithDelay(1000, RestartLevel1) 
 end
 
 local function TouchListenerAnswerbox(touch)
@@ -276,8 +303,11 @@ local function TouchListenerAnswerbox(touch)
                 answerbox.y = userAnswerBoxPlaceholder.y
                 userAnswer = correctAnswer
 
+                -- play sound once in the box 
+                correctSound = audio.play(Sound1)
+
                 -- call the function to check if the user's input is correct or not
-                CheckUserAnswerInput()
+                UserAnswerInputCorrect()
 
             --else make box go back to where it was
             else
@@ -314,11 +344,13 @@ local function TouchListenerAnswerBox1(touch)
 
                 alternateAnswerBox1.x = userAnswerBoxPlaceholder.x
                 alternateAnswerBox1.y = userAnswerBoxPlaceholder.y
-
                 userAnswer = alternateAnswer1
 
                 -- call the function to check if the user's input is correct or not
-                CheckUserAnswerInput()
+                UserAnswerInputIncorrect()
+
+                -- Playing sound once its in the box
+                incorrectSound = audio.play(Sound2)
 
             --else make box go back to where it was
             else
@@ -357,11 +389,11 @@ local function TouchListenerAnswerBox2(touch)
                 alternateAnswerBox2.y = userAnswerBoxPlaceholder.y
                 userAnswer = alternateAnswer2
 
-                -- decrease number of lives
-                numLives = numLives - 1
-
                 -- call the function to check if the user's input is correct or not
-                CheckUserAnswerInput()
+                UserAnswerInputIncorrect()
+
+                -- Playing sound once its in the box
+                incorrectSound = audio.play(Sound2)    
 
             --else make box go back to where it was
             else
@@ -399,12 +431,12 @@ local function TouchListenerAnswerBox3(touch)
                 alternateAnswerBox3.x = userAnswerBoxPlaceholder.x
                 alternateAnswerBox3.y = userAnswerBoxPlaceholder.y
                 userAnswer = alternateAnswer3
-                
-                -- decrease number of lives
-                numLives = numLives - 1
 
                 -- call the function to check if the user's input is correct or not
-                CheckUserAnswerInput()
+                UserAnswerInputIncorrect()
+
+                -- Playing sound once its in the box
+                incorrectSound = audio.play(Sound2)
 
             --else make box go back to where it was
             else
@@ -529,7 +561,7 @@ function scene:show( event )
         -- Example: start timers, begin animation, play audio, etc.
         RestartLevel1()
         AddAnswerBoxEventListeners()
-        -- bkgSoundChannel = audio.play(bkgSound) 
+        bkgSoundChannel = audio.play(bkgSound) 
 
     end
 
@@ -556,7 +588,7 @@ function scene:hide( event )
 
     elseif ( phase == "did" ) then
         -- Called immediately after scene goes off screen.
-        -- audio.stop(bkgSoundChannel)
+        audio.stop(bkgSoundChannel)
         RemoveAnswerBoxEventListeners()
     end
 
